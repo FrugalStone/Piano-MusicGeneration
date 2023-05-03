@@ -2,7 +2,7 @@ import parse_notes
 import prep_seq
 import music_lstm
 
-DIRECTORY = "./datasets/Debussy_Preludes"
+DIRECTORY = "datasets/Debussy_Generic/*.mid"
 
 def train_music_generation_model():
     """
