@@ -3,8 +3,8 @@ import pickle # Serialize notes
 import numpy  # Reshape and normalize input data
 
 import music21
-import keras.models as model
-import keras.layers as layer
+import keras.models as kmodel
+import keras.layers as klayer
 import keras.utils as utils
 import keras.callbacks as callback
 
@@ -16,11 +16,23 @@ import keras.callbacks as callback
 # Chords are parsed normal order
 # Does not account for inversions / octave displacements
 
+LSTM_UNITS = 512
+RECURRENT_DROPOUT_RATE = 0.3
+DROPOUT_RATE = 0.3
+
+HIDDEN_LAYER_ACTIVATION_FUNCTION = "relu"
+OUTPUT_LAYER_ACTIVATION_FUNCTION = "softmax"
+
+DENSE_UNITS = 256
+
+LOSS_FUNCTION = "categorical_crossentropy"
+OPTIMIZER = "rmsprop"
+
 def get_notes(directory):
 
     """
-        Store individual notes and chords in a list
-        And write it to a file at last
+    Store individual notes and chords in a list
+    And write it to a file at last
     """
 
     notes = list()
@@ -59,7 +71,7 @@ def get_notes(directory):
 
 def prepare_sequences(notes, num_pitch_classes):
     """
-        Prepare the sequences used by the Neural Network
+    Prepare the sequences used by the Neural Network
     """
 
     # Define the sequence length
@@ -100,3 +112,38 @@ def prepare_sequences(notes, num_pitch_classes):
 
     return (input_sequences, output_sequence)
 
+# from keras.layers import LSTM, BatchNormalization, Dropout, Dense, Activation
+
+def create_network(input_data, num_classes):
+    """
+    Create a neural network model for music generation.
+    
+    Args:
+        input_data: A numpy array of shape (num_samples, sequence_length, num_features)
+            representing the input data for the network.
+        num_classes: An integer indicating the number of output classes (i.e. unique
+            elements in the input data).
+    
+    Returns:
+        A compiled Keras Sequential model representing the neural network.
+    """
+
+    # Define the model architecture
+    model = kmodel.Sequential()
+    model.add(klayer.LSTM(units=LSTM_UNITS, input_shape=(input_data.shape[1], input_data.shape[2]),
+                   recurrent_dropout=RECURRENT_DROPOUT_RATE, return_sequences=True))
+    model.add(klayer.LSTM(units=LSTM_UNITS, return_sequences=True, recurrent_dropout=RECURRENT_DROPOUT_RATE))
+    model.add(klayer.LSTM(units=LSTM_UNITS))
+    model.add(klayer.BatchNormalization())
+    model.add(klayer.Dropout(rate=DROPOUT_RATE))
+    model.add(klayer.Dense(units=DENSE_UNITS))
+    model.add(klayer.Activation(HIDDEN_LAYER_ACTIVATION_FUNCTION))
+    model.add(klayer.BatchNormalization())
+    model.add(klayer.Dropout(rate=DROPOUT_RATE))
+    model.add(klayer.Dense(units=num_classes))
+    model.add(klayer.Activation(OUTPUT_LAYER_ACTIVATION_FUNCTION))
+
+    # Compile the model
+    model.compile(loss=LOSS_FUNCTION, optimizer=OPTIMIZER)
+    
+    return model
