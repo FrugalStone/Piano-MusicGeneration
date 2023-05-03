@@ -65,7 +65,7 @@ def train(model, X, y):
     Train a Keras model on input/output data.
     """
 
-    checkpoint_path = "weights-improvement-{epoch:02d}-{loss:.4f}-bigger.hdf5"
+    checkpoint_path = "weights/weights-improvement-{epoch:02d}-{loss:.4f}-bigger.hdf5"
     checkpoint = callback.ModelCheckpoint(
         checkpoint_path,
         monitor='loss',
