@@ -75,7 +75,7 @@ def create_network(input_data, num_classes):
 
     # Fully connected layer with the specified number of output units
     model.add(klayer.Dense(units=DENSE_UNITS))
-
+    #hi
     # Apply activation function to hidden layer neurons
     model.add(klayer.Activation(HIDDEN_LAYER_ACTIVATION_FUNCTION))
 
