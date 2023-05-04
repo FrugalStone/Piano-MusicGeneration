@@ -25,6 +25,8 @@ DENSE_UNITS = 256
 LOSS_FUNCTION = "categorical_crossentropy"
 OPTIMIZER = "rmsprop"
 
+RET_SEQ = True
+
 # Fitting Parameters for the neural network
 
 EPOCHS = 200
@@ -58,18 +60,34 @@ def create_network(input_data, num_classes):
 
     # Define the model architecture
     model = kmodel.Sequential()
+
+    # Three Layers of LSTM Units
     model.add(klayer.LSTM(units=LSTM_UNITS, input_shape=(input_data.shape[1], input_data.shape[2]),
                    recurrent_dropout=RECURRENT_DROPOUT_RATE, return_sequences=True))
-    model.add(klayer.LSTM(units=LSTM_UNITS, return_sequences=True, recurrent_dropout=RECURRENT_DROPOUT_RATE))
+    model.add(klayer.LSTM(units=LSTM_UNITS, return_sequences=RET_SEQ, recurrent_dropout=RECURRENT_DROPOUT_RATE))
     model.add(klayer.LSTM(units=LSTM_UNITS))
+
+    # Normalize input data to have zero mean and unit variance
     model.add(klayer.BatchNormalization())
+
+    # Dropout fraction of the input
     model.add(klayer.Dropout(rate=DROPOUT_RATE))
+
+    # Fully connected layer with the specified number of output units
     model.add(klayer.Dense(units=DENSE_UNITS))
+
+    # Apply activation function to hidden layer neurons
     model.add(klayer.Activation(HIDDEN_LAYER_ACTIVATION_FUNCTION))
+
+    # Normalize, Dropout, Dense layers for output
     model.add(klayer.BatchNormalization())
     model.add(klayer.Dropout(rate=DROPOUT_RATE))
     model.add(klayer.Dense(units=num_classes))
+
+    # Apply activation function to output layer neurons
     model.add(klayer.Activation(OUTPUT_LAYER_ACTIVATION_FUNCTION))
+
+
 
     # Compile the model
     model.compile(loss=LOSS_FUNCTION, optimizer=OPTIMIZER)
