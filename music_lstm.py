@@ -11,6 +11,8 @@ import keras.callbacks as callback
 # Chords are parsed normal order
 # Does not account for inversions / octave displacements
 
+# Neural Network Constants
+
 LSTM_UNITS = 512
 RECURRENT_DROPOUT_RATE = 0.3
 DROPOUT_RATE = 0.3
@@ -22,6 +24,17 @@ DENSE_UNITS = 256
 
 LOSS_FUNCTION = "categorical_crossentropy"
 OPTIMIZER = "rmsprop"
+
+# Fitting Parameters for the neural network
+
+EPOCHS = 200
+BATCH_SIZE = 128
+VERBOSE = 1
+
+# Checkpoint Parameters
+
+MODE = "min"
+MONITOR = "loss"
 
 class CustomPrintCallback(callback.Callback):
     def on_epoch_end(self, epoch, logs=None):
@@ -71,11 +84,11 @@ def train(model, X, y):
     checkpoint_path = "weights/weight-{epoch:03d}-{loss:.4f}.hdf5"
     checkpoint = callback.ModelCheckpoint(
         checkpoint_path,
-        monitor='loss',
+        monitor=MONITOR,
         save_best_only=True,
-        mode='min'
+        mode=MODE
     )
 
     custom_print = CustomPrintCallback()
 
-    model.fit(X, y, epochs=200, batch_size=128, callbacks=[checkpoint, custom_print], verbose=1)
+    model.fit(X, y, epochs=EPOCHS, batch_size=BATCH_SIZE, callbacks=[checkpoint, custom_print], verbose=VERBOSE)
