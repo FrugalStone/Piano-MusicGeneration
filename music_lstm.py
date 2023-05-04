@@ -23,8 +23,11 @@ DENSE_UNITS = 256
 LOSS_FUNCTION = "categorical_crossentropy"
 OPTIMIZER = "rmsprop"
 
-
-# from keras.layers import LSTM, BatchNormalization, Dropout, Dense, Activation
+class CustomPrintCallback(callback.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        if logs is None:
+            logs = {}
+        print(f"\nEpoch {epoch + 1}: loss={logs['loss']:.4f}")
 
 def create_network(input_data, num_classes):
     """
@@ -65,7 +68,7 @@ def train(model, X, y):
     Train a Keras model on input/output data.
     """
 
-    checkpoint_path = "weights/weights-improvement-{epoch:02d}-{loss:.4f}-bigger.hdf5"
+    checkpoint_path = "weights/weight-{epoch:03d}-{loss:.4f}.hdf5"
     checkpoint = callback.ModelCheckpoint(
         checkpoint_path,
         monitor='loss',
@@ -73,4 +76,6 @@ def train(model, X, y):
         mode='min'
     )
 
-    model.fit(X, y, epochs=200, batch_size=128, callbacks=[checkpoint])
+    custom_print = CustomPrintCallback()
+
+    model.fit(X, y, epochs=200, batch_size=128, callbacks=[checkpoint, custom_print], verbose=1)
